@@ -1,0 +1,27 @@
+database:
+  host: "postgres_container"
+  port: 5432
+  username: "postgres_user"
+  password: "postgres_password"
+  name: "postgres_db"
+  ssl_mode: "disable"
+  bucket_quantity: 2
+
+kafka:
+  host: "localhost"
+  port: 9092
+  game_topic_name: "game"
+
+redis:
+  host: "redis"
+  port: 6379
+  password: ""
+  dbStr: 0
+  
+gameServersConfig:
+  kgs:
+    url: "https://www.gokgs.com/json/access"
+    user: ""
+    password: ""
+    timeout: 15
+    srv_id: 10

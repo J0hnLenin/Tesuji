@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package tesuji.models.v1;
+option go_package = "github.com/J0hnLenin/Tesuji/internal/pb/models";
+
+message GameSummary {
+  int64 id = 1;
+  int32 board_size = 2;
+  string title = 3;
+  float komi = 4;
+  string date = 5;
+  bool is_finished = 6;
+  Rules rules = 7;
+  Player black_player = 8;
+  Player white_player = 9;
+}
+
+message Game {
+  GameSummary summary = 1;
+  repeated GameState game_data = 2;
+}
+
+message Player {
+  string name = 1;
+  int32 rank = 2;
+}
+
+message GameState {
+  Move last_move = 1;
+  Position position = 2;
+}
+
+message Position {
+  repeated int32 data = 1 [packed=true];
+}
+
+message Move {
+  Point point = 1;
+  bool is_pass = 2;
+  Color color = 3;
+}
+
+message Point {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+enum Color {
+  BLACK = 0;
+  WHITE = 1;
+}
+
+enum Rules {
+  JAPANESE = 0;
+  CHINESE = 1;
+}
+
+
+
+
+
+
+

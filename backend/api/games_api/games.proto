@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package tesuji.service.v1;
+option go_package = "github.com/J0hnLenin/Tesuji/internal/pb/games_api";
+
+import "models/game_model.proto";
+import "google/api/annotations.proto";
+
+service GamesService {
+    rpc GetGamesSummaryList (GetGamesSummaryListRequest) returns (GetGamesSummaryListResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/games"
+        };
+    }
+
+    rpc GetGameByID (GetGameByIDRequest) returns (GetGameByIDResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/games/{id}"
+        };
+    }
+ }
+
+message GetGamesSummaryListRequest {
+    int64 page = 1;
+    int64 limit = 2;
+}
+
+message GetGamesSummaryListResponse {
+    repeated tesuji.models.v1.GameSummary games = 1;
+}
+
+message GetGameByIDRequest {
+    int64 id = 1;
+}
+
+message GetGameByIDResponse {
+    tesuji.models.v1.Game game = 1;
+}

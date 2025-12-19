@@ -1,0 +1,247 @@
+<template>
+  <div class="board-container">
+    <div class="go-board" :style="boardStyle">
+      <!-- Фоновый слой с линиями -->
+      <div class="board-background" :style="backgroundStyle">
+        <div v-for="row in size" :key="row" class="board-row-background">
+          <div v-for="col in size" :key="col" class="intersection-background"></div>
+        </div>
+      </div>
+
+      <!-- Слой с камнями поверх -->
+      <div class="board-stones" :style="stonesStyle">
+        <div v-for="row in size" :key="row" class="board-row">
+          <div
+            v-for="col in size"
+            :key="col"
+            class="intersection"
+            :class="{
+              'has-stone': getStoneAt(col - 1, row - 1),
+              black: getStoneColor(col - 1, row - 1) === 'black',
+              white: getStoneColor(col - 1, row - 1) === 'white',
+              'last-move': isLastMove(col - 1, row - 1),
+            }"
+            @click="handleIntersectionClick(col - 1, row - 1)"
+          >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import type { Move } from '../types'
+
+interface Props {
+  size: number
+  moves: Move[] | null
+  currentMove: number
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  'move-click': [index: number]
+}>()
+
+const boardStyle = computed(() => ({
+  '--board-size': props.size,
+}))
+
+const backgroundStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${props.size}, 1fr)`,
+}))
+
+const stonesStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${props.size}, 1fr)`,
+}))
+
+const visibleMoves = computed(() => {
+  if (!props.moves) return []
+  return props.moves.slice(0, props.currentMove + 1).filter((move) => !move.IsPass)
+})
+
+function getStoneAt(x: number, y: number): boolean {
+  return visibleMoves.value.some((move) => move.X === x && move.Y === y)
+}
+
+function getStoneColor(x: number, y: number): 'black' | 'white' | null {
+  const move = visibleMoves.value.find((m) => m.X === x && m.Y === y)
+  return move ? move.Color : null
+}
+
+function isLastMove(x: number, y: number): boolean {
+  if (props.currentMove < 0 || !props.moves) return false
+  const currentMove = props.moves[props.currentMove]
+  return currentMove && currentMove.X === x && currentMove.Y === y
+}
+
+// function showMoveNumber(x: number, y: number): boolean {
+//   const move = visibleMoves.value.find((m) => m.X === x && m.Y === y)
+//   return move ? move.MoveNumber <= props.currentMove + 1 : false
+// }
+
+// function getMoveNumber(x: number, y: number): number {
+//   const move = visibleMoves.value.find((m) => m.X === x && m.Y === y)
+//   return move ? move.MoveNumber : 0
+// }
+
+function handleIntersectionClick(x: number, y: number) {
+  if (!props.moves) return
+  const moveIndex = props.moves.findIndex((move) => move.X === x && move.Y === y && !move.IsPass)
+  if (moveIndex !== -1) {
+    emit('move-click', moveIndex)
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.board-container {
+  background: #dcb35c;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.go-board {
+  position: relative;
+  background: #dcb35c;
+  // border: 2px solid #8b4513;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+/* Фоновый слой с сеткой */
+.board-background {
+  display: grid;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.board-row {
+  display: contents;
+}
+
+.board-row-background {
+  display: contents;
+}
+
+.intersection-background {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Вертикальные линии */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 1px;
+    height: 100%;
+    background: #000;
+  }
+
+  /* Горизонтальные линии */
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    height: 1px;
+    width: 100%;
+    background: #000;
+  }
+}
+
+.board-row-background:last-child .intersection-background::after {
+  display: none;
+}
+
+/* Слой с камнями */
+.board-stones {
+  display: grid;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.intersection {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+  width: 90%;
+  height: 90%;
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.has-stone {
+  border-radius: 50%;
+  z-index: 3;
+}
+
+.black {
+  background: #000;
+  outline: 2px solid #000;
+  box-shadow: 0 2px 2px rgba(0, 0, 0.2, 0.2);
+}
+
+.white {
+  background: #fff;
+  outline: 2px solid #000;
+  box-shadow: 0 2px 2px rgba(0, 0, 0.2, 0.2);
+}
+
+.last-move {
+  &::after {
+    content: '';
+    position: absolute;
+    // border: 2px solid #e74c3c;
+    border-radius: 50%;
+    z-index: 4;
+    pointer-events: none;
+  }
+}
+
+.move-number {
+  position: absolute;
+  font-size: 0.6rem;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.black .move-number {
+  color: white;
+}
+
+.white .move-number {
+  color: black;
+}
+
+// Адаптивность
+@include breakpoints.sm {
+  .board-container {
+    padding: 1.25rem;
+  }
+}
+
+@include breakpoints.xs {
+  .board-container {
+    padding: 0.75rem;
+  }
+}
+</style>

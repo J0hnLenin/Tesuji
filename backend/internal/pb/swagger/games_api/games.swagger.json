@@ -1,0 +1,267 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "games_api/games.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "GamesService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/games": {
+      "get": {
+        "operationId": "GamesService_GetGamesSummaryList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetGamesSummaryListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GamesService"
+        ]
+      }
+    },
+    "/api/v1/games/{id}": {
+      "get": {
+        "operationId": "GamesService_GetGameByID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetGameByIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GamesService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Color": {
+      "type": "string",
+      "enum": [
+        "BLACK",
+        "WHITE"
+      ],
+      "default": "BLACK"
+    },
+    "v1Game": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "$ref": "#/definitions/v1GameSummary"
+        },
+        "gameData": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1GameState"
+          }
+        }
+      }
+    },
+    "v1GameState": {
+      "type": "object",
+      "properties": {
+        "lastMove": {
+          "$ref": "#/definitions/v1Move"
+        },
+        "position": {
+          "$ref": "#/definitions/v1Position"
+        }
+      }
+    },
+    "v1GameSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "boardSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "title": {
+          "type": "string"
+        },
+        "komi": {
+          "type": "number",
+          "format": "float"
+        },
+        "date": {
+          "type": "string"
+        },
+        "isFinished": {
+          "type": "boolean"
+        },
+        "rules": {
+          "$ref": "#/definitions/v1Rules"
+        },
+        "blackPlayer": {
+          "$ref": "#/definitions/v1Player"
+        },
+        "whitePlayer": {
+          "$ref": "#/definitions/v1Player"
+        }
+      }
+    },
+    "v1GetGameByIDResponse": {
+      "type": "object",
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/v1Game"
+        }
+      }
+    },
+    "v1GetGamesSummaryListResponse": {
+      "type": "object",
+      "properties": {
+        "games": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1GameSummary"
+          }
+        }
+      }
+    },
+    "v1Move": {
+      "type": "object",
+      "properties": {
+        "point": {
+          "$ref": "#/definitions/v1Point"
+        },
+        "isPass": {
+          "type": "boolean"
+        },
+        "color": {
+          "$ref": "#/definitions/v1Color"
+        }
+      }
+    },
+    "v1Player": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rank": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1Point": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1Position": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "v1Rules": {
+      "type": "string",
+      "enum": [
+        "JAPANESE",
+        "CHINESE"
+      ],
+      "default": "JAPANESE"
+    }
+  }
+}
