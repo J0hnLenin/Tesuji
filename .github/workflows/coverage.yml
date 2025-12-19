@@ -23,4 +23,5 @@ jobs:
       - name: Send coverage to Coveralls
         uses: shogo82148/actions-goveralls@v1
         with:
-          path-to-profile: ./backend/coverage
+          path-to-profile: ./coverage
+          working-directory: ./backend
