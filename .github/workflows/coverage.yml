@@ -15,7 +15,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           cd ./backend
-          go test -coverprofile=./backend/coverage -covermode=atomic \
+          go test -coverprofile=coverage -covermode=atomic \
             ./internal/services/gamelogic \
             ./internal/services/gameservice \
             ./internal/services/protoconvert
@@ -23,4 +23,4 @@ jobs:
       - name: Send coverage to Coveralls
         uses: shogo82148/actions-goveralls@v1
         with:
-          path-to-profile: ./backend/coverage
+          path-to-profile: coverage
