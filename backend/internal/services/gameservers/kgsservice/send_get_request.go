@@ -1,6 +1,9 @@
 package kgsservice
 
-import "io"
+import (
+	"io"
+	"log"
+)
 
 func (kgs *KGSService) sendGetRequest() (string, error) {
 
@@ -8,7 +11,12 @@ func (kgs *KGSService) sendGetRequest() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Printf("close response body error: %v", err)
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

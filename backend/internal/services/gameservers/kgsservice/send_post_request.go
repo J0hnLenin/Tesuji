@@ -3,6 +3,7 @@ package kgsservice
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 )
 
 func (kgs *KGSService) sendPostRequest(data interface{}) error {
@@ -15,7 +16,12 @@ func (kgs *KGSService) sendPostRequest(data interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Printf("close response body error: %v", err)
+		}
+	}()
 
 	return nil
 }
