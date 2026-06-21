@@ -15,10 +15,10 @@ func (g *GameLogicSuite) TestMakeAMoveSuccess() {
 
 	game := &models.Game{}
 	game.BoardSize = 19
-	g.gameLogic.InitGameData(g.ctx, game)
+	errGameCreate := g.gameLogic.InitGameData(g.ctx, game)
 
 	move := &models.Move{
-		Color: wantColor,
+		Color:  wantColor,
 		IsPass: false,
 		Point: &models.Point{
 			X: wantPosX,
@@ -27,7 +27,8 @@ func (g *GameLogicSuite) TestMakeAMoveSuccess() {
 	}
 
 	err := g.gameLogic.MakeAMove(g.ctx, game, move)
-	
+
+	assert.Nil(g.T(), errGameCreate)
 	assert.Nil(g.T(), err)
 	assert.Equal(g.T(), wantMoves, len(game.GameData))
 	assert.Equal(g.T(), wantPosX, game.GameData[1].LastMove.Point.X)
@@ -46,10 +47,10 @@ func (g *GameLogicSuite) TestMakeAMoveErrorDoubleMove() {
 
 	game := &models.Game{}
 	game.BoardSize = 19
-	g.gameLogic.InitGameData(g.ctx, game)
+	errGameCreate := g.gameLogic.InitGameData(g.ctx, game)
 
 	move := &models.Move{
-		Color: wantColor,
+		Color:  wantColor,
 		IsPass: false,
 		Point: &models.Point{
 			X: wantPosX,
@@ -57,10 +58,12 @@ func (g *GameLogicSuite) TestMakeAMoveErrorDoubleMove() {
 		},
 	}
 
-	g.gameLogic.MakeAMove(g.ctx, game, move)
-	err := g.gameLogic.MakeAMove(g.ctx, game, move)
+	errFirstMove := g.gameLogic.MakeAMove(g.ctx, game, move)
+	errSecondMove := g.gameLogic.MakeAMove(g.ctx, game, move)
 
-	assert.NotNil(g.T(), err)
+	assert.Nil(g.T(), errGameCreate)
+	assert.Nil(g.T(), errFirstMove)
+	assert.NotNil(g.T(), errSecondMove)
 	assert.Equal(g.T(), wantMoves, len(game.GameData))
 }
 
@@ -69,7 +72,7 @@ func (g *GameLogicSuite) TestMakeAMoveErrorGameNotInit() {
 	game.BoardSize = 19
 
 	move := &models.Move{
-		Color: models.Black,
+		Color:  models.Black,
 		IsPass: false,
 		Point: &models.Point{
 			X: 0,
@@ -97,43 +100,43 @@ func (g *GameLogicSuite) TestMakeAMoveSuccessCapture() {
 
 	game := &models.Game{}
 	game.BoardSize = 3
-	g.gameLogic.InitGameData(g.ctx, game)
+	errGameCreate := g.gameLogic.InitGameData(g.ctx, game)
 
 	moves := []*models.Move{
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(0, 1),
+			Point:  newPoint(0, 1),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: false,
-			Point: newPoint(0, 2),
+			Point:  newPoint(0, 2),
 		},
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(1, 0),
+			Point:  newPoint(1, 0),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: false,
-			Point: newPoint(1, 1),
+			Point:  newPoint(1, 1),
 		},
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(2, 1),
+			Point:  newPoint(2, 1),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: true,
-			Point: nil,
+			Point:  nil,
 		},
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(1, 2),
+			Point:  newPoint(1, 2),
 		},
 	}
 
@@ -141,7 +144,9 @@ func (g *GameLogicSuite) TestMakeAMoveSuccessCapture() {
 		err := g.gameLogic.MakeAMove(g.ctx, game, move)
 		assert.Nil(g.T(), err)
 	}
-	
+
+	assert.Nil(g.T(), errGameCreate)
+
 	pos := game.GameData[len(game.GameData)-1].Position
 	assert.Equal(g.T(), models.EmptyPoint, pos[0][0])
 	assert.Equal(g.T(), models.BlackStone, pos[0][1])
@@ -169,38 +174,38 @@ func (g *GameLogicSuite) TestMakeAMoveSuccessAnotherCapture() {
 
 	game := &models.Game{}
 	game.BoardSize = 2
-	g.gameLogic.InitGameData(g.ctx, game)
+	errGameCreate := g.gameLogic.InitGameData(g.ctx, game)
 
 	moves := []*models.Move{
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(0, 0),
+			Point:  newPoint(0, 0),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: true,
-			Point: nil,
+			Point:  nil,
 		},
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(0, 1),
+			Point:  newPoint(0, 1),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: true,
-			Point: nil,
+			Point:  nil,
 		},
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(1, 0),
+			Point:  newPoint(1, 0),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: false,
-			Point: newPoint(1, 1),
+			Point:  newPoint(1, 1),
 		},
 	}
 
@@ -208,7 +213,9 @@ func (g *GameLogicSuite) TestMakeAMoveSuccessAnotherCapture() {
 		err := g.gameLogic.MakeAMove(g.ctx, game, move)
 		assert.Nil(g.T(), err)
 	}
-	
+
+	assert.Nil(g.T(), errGameCreate)
+
 	pos := game.GameData[len(game.GameData)-1].Position
 	assert.Equal(g.T(), models.EmptyPoint, pos[0][0])
 	assert.Equal(g.T(), models.EmptyPoint, pos[0][1])
@@ -230,28 +237,28 @@ func (g *GameLogicSuite) TestMakeAMoveSuccessNotCapture() {
 
 	game := &models.Game{}
 	game.BoardSize = 2
-	g.gameLogic.InitGameData(g.ctx, game)
+	errGameCreate := g.gameLogic.InitGameData(g.ctx, game)
 
 	moves := []*models.Move{
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(0, 0),
+			Point:  newPoint(0, 0),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: true,
-			Point: nil,
+			Point:  nil,
 		},
 		{
-			Color: models.Black,
+			Color:  models.Black,
 			IsPass: false,
-			Point: newPoint(0, 1),
+			Point:  newPoint(0, 1),
 		},
 		{
-			Color: models.White,
+			Color:  models.White,
 			IsPass: false,
-			Point: newPoint(1, 1),
+			Point:  newPoint(1, 1),
 		},
 	}
 
@@ -259,7 +266,9 @@ func (g *GameLogicSuite) TestMakeAMoveSuccessNotCapture() {
 		err := g.gameLogic.MakeAMove(g.ctx, game, move)
 		assert.Nil(g.T(), err)
 	}
-	
+
+	assert.Nil(g.T(), errGameCreate)
+
 	pos := game.GameData[len(game.GameData)-1].Position
 	assert.Equal(g.T(), models.BlackStone, pos[0][0])
 	assert.Equal(g.T(), models.BlackStone, pos[0][1])

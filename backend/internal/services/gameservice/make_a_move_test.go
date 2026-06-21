@@ -15,10 +15,10 @@ func (g *GameServiceSuite) TestMakeAMoveSuccess() {
 
 	game := &models.Game{}
 	game.BoardSize = 19
-	g.gameService.InitGameData(g.ctx, game)
+	errGameCreate := g.gameService.InitGameData(g.ctx, game)
 
 	move := &models.Move{
-		Color: wantColor,
+		Color:  wantColor,
 		IsPass: false,
 		Point: &models.Point{
 			X: wantPosX,
@@ -27,7 +27,8 @@ func (g *GameServiceSuite) TestMakeAMoveSuccess() {
 	}
 
 	err := g.gameService.MakeAMove(g.ctx, game, move)
-	
+
+	assert.Nil(g.T(), errGameCreate)
 	assert.Nil(g.T(), err)
 	assert.Equal(g.T(), wantMoves, len(game.GameData))
 	assert.Equal(g.T(), wantPosX, game.GameData[1].LastMove.Point.X)
@@ -45,10 +46,10 @@ func (g *GameServiceSuite) TestMakeAMoveErrorDoubleMove() {
 
 	game := &models.Game{}
 	game.BoardSize = 19
-	g.gameService.InitGameData(g.ctx, game)
+	errGameCreate := g.gameService.InitGameData(g.ctx, game)
 
 	move := &models.Move{
-		Color: wantColor,
+		Color:  wantColor,
 		IsPass: false,
 		Point: &models.Point{
 			X: wantPosX,
@@ -56,9 +57,11 @@ func (g *GameServiceSuite) TestMakeAMoveErrorDoubleMove() {
 		},
 	}
 
-	g.gameService.MakeAMove(g.ctx, game, move)
-	err := g.gameService.MakeAMove(g.ctx, game, move)
+	errMove := g.gameService.MakeAMove(g.ctx, game, move)
+	errDublicateMove := g.gameService.MakeAMove(g.ctx, game, move)
 
-	assert.NotNil(g.T(), err)
+	assert.Nil(g.T(), errGameCreate)
+	assert.Nil(g.T(), errMove)
+	assert.NotNil(g.T(), errDublicateMove)
 	assert.Equal(g.T(), wantMoves, len(game.GameData))
 }

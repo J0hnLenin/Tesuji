@@ -3,6 +3,7 @@ package redisstorage
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	proto_models "github.com/J0hnLenin/Tesuji/internal/pb/models"
@@ -15,7 +16,12 @@ func (r *RedisStorage) UpsertGamesData(ctx context.Context, games []*proto_model
 	}
 
 	pipe := r.client.Pipeline()
-	defer pipe.Discard()
+	defer func() {
+		err := pipe.Discard()
+		if err != nil {
+			log.Printf("discard pipe error: %v", err)
+		}
+	}()
 
 	var errs []error
 
@@ -34,7 +40,7 @@ func (r *RedisStorage) UpsertGamesData(ctx context.Context, games []*proto_model
 
 		pipe.Set(ctx, key, gameData, 0)
 
-		pipe.HSet(ctx, "game:meta:"+string(game.Summary.Id),
+		pipe.HSet(ctx, "game:meta:"+fmt.Sprint(game.Summary.Id),
 			"updated_at", time.Now().Unix(),
 			"is_finished", game.Summary.IsFinished,
 		)

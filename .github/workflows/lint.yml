@@ -14,7 +14,9 @@ jobs:
           go-version: '1.25.6'
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        run: |
+          cd ./backend
+          golangci-lint run ./...
         with:
           version: latest
           install-mode: goinstall

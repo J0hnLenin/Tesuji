@@ -37,11 +37,6 @@ type property struct {
 	ByoYomiTime    uint16
 }
 
-type moveLocation struct {
-	X int
-	Y int
-}
-
 type room struct {
 	Category  string
 	ChannelID int
