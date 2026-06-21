@@ -1,63 +1,118 @@
-# Проект для просмотра партий по игре го
+# Tesuji — просмотр партий по игре Го в реальном времени
 
-## Описание проекта
-Веб-приложение для просмотра партий по игре го. На текущий момент партии импортируются с сервера KGS, в дальнейшем планируется добавить сервера FoxWeiqi, OGS.
+[![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev/)
+[![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Kafka](https://img.shields.io/badge/Apache%20Kafka-3.x-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 
-## Технологии
+---
 
-### Backend
-- **Golang**
-- **PostgreSQL**
-- **Redis**
-- **Kafka**
+## 📖 Описание
 
-### Frontend
-- Vue
-- Vite
-- CSS
+**Tesuji** — это веб-приложение для просмотра партий по игре Го в реальном времени. На данный момент партии импортируются с сервера **KGS** (одна из крупнейших онлайн-платформ для игры Го), с помощью reverse-engineering их протоколов. В будущем планируется добавить поддержку других серверов, таких как **FoxWeiqi** и **OGS**.
 
-### Инфраструктура
+Проект построен по принципам микросервисной архитектуры: бекенд и фронтенд разделены и взаимодействуют через REST API. Для обработки потоковых данных используется **Kafka**, а для кеширования — **Redis**, что позволяет эффективно работать с большим количеством игр и пользователей.
+
+---
+
+## 📂 Структура проекта
+
+```
+Tesuji/
+├── backend/                # Go-сервер
+│   ├── internal/
+│   │   ├── gamelogic/      # Логика игры
+│   │   ├── gameservice/    # API и бизнес-логика
+│   │   ├── kgsclient/     # Клиент для KGS
+│   │   ├── protoconvert/   # Конвертация protobuf
+│   │   └── storage/        # Работа с БД (PostgreSQL, Redis)
+│   ├── cmd/                # Точка входа
+│   └── go.mod
+├── frontend/               # Vue-приложение
+│   ├── src/
+│   ├── public/
+│   └── package.json
+├── docker-compose.yml      # Оркестрация всех сервисов
+├── .github/workflows/      # GitHub Actions CI/CD
+└── README.md
+```
+
+## 🏗 Архитектура
+
+### Cхема
+
+
+### Компоненты
+
+1.  **Frontend (Vue 3)** — SPA (Single Page Application) для отображения списка игр и просмотра конкретных партий. Использует Vite для сборки и CSS для стилизации.
+
+2.  **Backend (Golang)** — основной сервер, который:
+    - **GameService** — бизнес-логика: получение списка игр, деталей игры, управление партиями.
+    - **KGS Client** — модуль для подключения к серверу KGS, получения данных в реальном времени (reverse-engineering протоколов).
+    - **Protobuf Converter** — конвертация данных из формата KGS во внутренние структуры.
+    - **Storage** — взаимодействие с PostgreSQL для долговременного хранения.
+    - **Redis** — кеширование часто запрашиваемых данных (списки игр, быстрый доступ к активным партиям).
+    - **Kafka** — асинхронная обработка событий: новые игры, обновления статуса, уведомления.
+
+3.  **Базы данных и брокеры**:
+    - **PostgreSQL** — основное хранилище данных об играх, пользователях, истории.
+    - **Redis** — кеш-слой для ускорения ответов API.
+    - **Kafka** — шина событий для обмена данными между микросервисами (в перспективе).
+
+4.  **Инфраструктура**:
+    - **Docker & Docker Compose** — контейнеризация всех компонентов, простой запуск одной командой.
+    - **GitHub Actions** — автоматическая сборка, тестирование и деплой (CI/CD).
+
+---
+
+## 🚀 Установка и запуск
+
+### Требования
+- Git
 - Docker & Docker Compose
-- GitHub Actions (CI/CD)
 
-## Покрытие тестами
-Основные модули: 
-- `gamelogic`  
-- `gameservice`  
-- `protoconvert`  
+### Шаги
 
-![Coverage Status](https://coveralls.io/repos/github/J0hnLenin/Tesuji/badge.svg?branch=main)
-![Tests Status](https://github.com/J0hnLenin/Tesuji/actions/workflows/coverage.yml/badge.svg)
-
-## Эндпоинты
-
-### Backend (порт 8080)
-```
-GET /api/v1/games/{id} # Информация о конкретной игре
-GET /api/v1/games # Список игр с пагинацией
-?page=1&limit=10 # Параметры: страница и лимит
+1.  **Клонируйте репозиторий:**
+```bash
+git clone https://github.com/J0hnLenin/Tesuji.git
+cd ./Tesuji
 ```
 
-### Frontend (порт 4173)
-```
-GET /games # Страница со списком всех игр
-GET /games/{id} # Страница просмотра конкретной gfhnbb
-```
+2. **Настройка окружения (опционально):**  
+При необходимости отредактируйте переменные в файле .env (секреты, порты, строки подключения к БД). По умолчанию всё настроено для локального запуска.
 
-## Установка и запуск
-
-Необходимые компоненты: git, docker
-
-1. Клонировать репозиторий
-
-```
-git clone https://github.com/J0hnLenin/ReviewRequest
-cd ./ReviewRequest
-```
-
-2. При необходимости поменять секреты в файле .env, но этот шаг необязательный
-3. Собрать проект
-
-```
+3. **Запуск проекта:**
+```bash
 docker compose up -d
 ```
+
+**После запуска будут доступны:**
+
+- Frontend: http://localhost:4173
+
+- Backend API: http://localhost:8080
+
+- gRPC (бекенд): http://localhost:50051
+
+---
+
+## 📡 API Эндпоинты
+
+### Backend (REST API, порт 8080)
+
+|Метод|URL|Описание|
+|-----|---|--------|
+|GET|/api/v1/games|Получить список игр с пагинацией. Параметры: ?page=1&limit=10|
+|GET|/api/v1/games/{id}|Получить информацию о конкретной игре по её ID|
+
+### Frontend (порт 4173)
+
+|Метод|URL|Описание|
+|-----|---|--------|
+|GET|/games|Список игр|
+|GET|/games/{id}|Просмотра конкретной игры|
+
