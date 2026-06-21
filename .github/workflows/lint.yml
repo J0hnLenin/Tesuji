@@ -19,3 +19,4 @@ jobs:
           version: latest
           working-directory: ./backend
           args: --timeout=5m --go=1.26.4
+          cache-dependency-path: ./backend/go.sum
