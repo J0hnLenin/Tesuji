@@ -48,6 +48,8 @@ Tesuji/
 
 ### Cхема
 
+![Архитектура](./backend/docs/drawio.svg)
+
 ### Граф зависимостей
 
 ![Граф зависимостей](./backend/docs/goda.svg)
